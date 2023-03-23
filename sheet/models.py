@@ -17,10 +17,11 @@ class Scores(models.Model):
     ]
 
     qliq = models.OneToOneField(Quantity, on_delete=models.CASCADE,
-                             related_name="qliq_scores")
+                                related_name="qliq_scores")
     qoil = models.OneToOneField(Quantity, on_delete=models.CASCADE,
-                             related_name="qoil_scores")
-    SCORE_TYPE_CHOICES = models.CharField(choices=scores_choises, max_length=10)
+                                related_name="qoil_scores")
+    SCORE_TYPE_CHOICES = models.CharField(choices=scores_choises,
+                                          max_length=10)
 
 
 from django.db import models
@@ -35,10 +36,7 @@ class Sheet(models.Model):
     date = models.DateField(blank=True, null=True)
 
 
-
-
 class Total(models.Model):
     date = models.DateField()
     qoil_total = models.IntegerField(blank=True, null=True)
     qliq_total = models.IntegerField(blank=True, null=True)
-
