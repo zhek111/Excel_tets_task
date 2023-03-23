@@ -1,32 +1,29 @@
 import os
 
 import django
+from django.db.models import Sum
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "djangoProject1.settings")
 django.setup()
 
-
 from sheet.models import Sheet, Total
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 def calculate_totals():
     start_date = datetime(2023, 3, 1)
     end_date = datetime(2023, 3, 20)
 
-    while start_date <= end_date:
-        qoil_total = 0
-        qliq_total = 0
+    sheets = Sheet.objects.select_related('fact').filter(
+        date__range=[start_date, end_date])
 
-        sheets = Sheet.objects.filter(date=start_date)
-        for sheet in sheets:
-            qoil_total += sheet.fact.qoil.data1 + sheet.fact.qoil.data2
-            qliq_total += sheet.fact.qliq.data1 + sheet.fact.qliq.data2
+    totals = sheets.values('date').annotate(
+        qoil_total=Sum('fact__qoil__data1') + Sum('fact__qoil__data2'),
+        qliq_total=Sum('fact__qliq__data1') + Sum('fact__qliq__data2'))
 
-        total, _ = Total.objects.get_or_create(date=start_date)
-        total.qoil_total = qoil_total
-        total.qliq_total = qliq_total
-        total.save()
+    totals_to_create = [
+        Total(date=total['date'], qoil_total=total['qoil_total'],
+              qliq_total=total['qliq_total']) for total in totals]
 
-        start_date += timedelta(days=1)
+    Total.objects.bulk_create(totals_to_create, ignore_conflicts=True)
