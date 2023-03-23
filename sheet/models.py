@@ -11,16 +11,16 @@ class Quantity(models.Model):
 
 
 class Scores(models.Model):
-    Scores = [
+    scores_choises = [
         ('fact', 'Fact'),
         ('forecast', 'Forecast'),
     ]
 
-    qliq = models.ForeignKey(Quantity, on_delete=models.CASCADE,
+    qliq = models.OneToOneField(Quantity, on_delete=models.CASCADE,
                              related_name="qliq_scores")
-    qoil = models.ForeignKey(Quantity, on_delete=models.CASCADE,
+    qoil = models.OneToOneField(Quantity, on_delete=models.CASCADE,
                              related_name="qoil_scores")
-    SCORE_TYPE_CHOICES = models.CharField(choices=Scores, max_length=10)
+    SCORE_TYPE_CHOICES = models.CharField(choices=scores_choises, max_length=10)
 
 
 from django.db import models
